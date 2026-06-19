@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="km" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduLearn Platform - វេទិកាសិក្សាអនឡាញឈានមុខគេ</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6', // ពណ៌ខៀវ
+                        secondary: '#8B5CF6', // ពណ៌ស្វាយ
+                        darkBg: '#0F172A',
+                        darkCard: '#1E293B'
+                    },
+                    fontFamily: {
+                        khmer: ['Kantumruy Pro', 'Hanuman', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- នាំចូលពុម្ពអក្សរខ្មែរពី Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:ital,wght@0,100..900;1,100..900&family=Hanuman:wght@100;300;400;700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome សម្រាប់រូបតំណាង (Icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Kantumruy Pro', 'Hanuman', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-300">
+
+    <!-- NAVIGATION BAR (របារម៉ឺនុយ) -->
+    <nav class="sticky top-0 z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-gray-200 dark:border-slate-800 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- ឡូហ្គោ -->
+                <div class="flex items-center gap-2 cursor-pointer" onclick="navigateTo('home')">
+                    <div class="w-10 h-10 bg-gradient-to-tr from-primary to-secondary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
+                        <i class="fa-solid fa-graduation-cap text-xl animate-bounce"></i>
+                    </div>
+                    <span class="text-2xl font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">EduLearn</span>
+                </div>
+
+                <!-- ម៉ឺនុយសម្រាប់ Desktop -->
+                <div class="hidden md:flex items-center gap-8 font-semibold">
+                    <button id="nav-home" onclick="navigateTo('home')" class="text-primary hover:text-primary transition pb-1">ទំព័រដើម</button>
+                    <button id="nav-courses" onclick="navigateTo('courses')" class="hover:text-primary transition pb-1">វគ្គសិក្សា</button>
+                    <button id="nav-about" onclick="navigateTo('about')" class="hover:text-primary transition pb-1">អំពីយើង</button>
+                    <button id="nav-contact" onclick="navigateTo('contact')" class="hover:text-primary transition pb-1">ទំនាក់ទំនង</button>
+                </div>
+
+                <!-- ឧបករណ៍បញ្ជាខាងស្តាំ (Dark Mode, Auth, Notification) -->
+                <div class="flex items-center gap-4">
+                    <!-- ប៊ូតុងប្តូរ Dark Mode -->
+                    <button onclick="toggleDarkMode()" class="p-2 rounded-lg bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-300 hover:scale-105 transition" title="ប្តូរពណ៌">
+                        <i id="dark-icon" class="fa-solid fa-moon text-lg"></i>
+                    </button>
+
+                    <!-- ប្រព័ន្ធជូនដំណឹង (Notification Hub) -->
+                    <div class="relative">
+                        <button onclick="toggleNotifications()" class="p-2 rounded-lg bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-300 hover:scale-105 transition relative">
+                            <i class="fa-solid fa-bell text-lg"></i>
+                            <span id="notif-badge" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold">2</span>
+                        </button>
+                        <!-- បញ្ជីជូនដំណឹង -->
+                        <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl shadow-xl z-50 overflow-hidden">
+                            <div class="p-3 border-b border-gray-100 dark:border-slate-700 flex justify-between items-center bg-gray-50 dark:bg-slate-800/50">
+                                <span class="font-bold text-sm">ការជូនដំណឹង</span>
+                                <button onclick="clearNotifs()" class="text-xs text-primary hover:underline">សម្អាតទាំងអស់</button>
+                            </div>
+                            <div class="max-h-64 overflow-y-auto" id="notif-list">
+                                <div class="p-3 border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition cursor-pointer">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">មុននេះបន្តិច</p>
+                                    <p class="text-xs font-semibold mt-1">🎉 វគ្គសិក្សា "UX/UI Design" ត្រូវបានបន្ថែមមេរៀនថ្មី!</p>
+                                </div>
+                                <div class="p-3 border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition cursor-pointer">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">១ ម៉ោងមុន</p>
+                                    <p class="text-xs font-semibold mt-1">📝 អ្នកទទួលបានពិន្ទុ ១០០/១០០ លើ Quiz ទី១</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ប៊ូតុងចូលរួម / ប្រវត្តិរូប -->
+                    <div id="nav-auth-section">
+                        <button onclick="navigateTo('login')" class="px-5 py-2 rounded-xl bg-gradient-to-r from-primary to-secondary text-white font-semibold hover:shadow-lg hover:shadow-primary/30 transition-all duration-300 transform hover:-translate-y-0.5 text-sm sm:text-base">
+                            <i class="fa-solid fa-right-to-bracket mr-2"></i>ចូលប្រើប្រាស់
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ប៊ូតុងទូរស័ព្ទ (Mobile Menu) -->
+                <div class="md:hidden flex items-center">
+                    <button onclick="toggleMobileMenu()" class="p-2 text-gray-600 dark:text-gray-300 focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ម៉ឺនុយទូរស័ព្ទ -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 px-4 py-4 space-y-3">
+            <button onclick="navigateTo('home'); toggleMobileMenu()" class="block w-full text-left font-semibold hover:text-primary transition py-2 border-b border-gray-100 dark:border-slate-800">ទំព័រដើម</button>
+            <button onclick="navigateTo('courses'); toggleMobileMenu()" class="block w-full text-left font-semibold hover:text-primary transition py-2 border-b border-gray-100 dark:border-slate-800">វគ្គសិក្សា</button>
+            <button onclick="navigateTo('about'); toggleMobileMenu()" class="block w-full text-left font-semibold hover:text-primary transition py-2 border-b border-gray-100 dark:border-slate-800">អំពីយើង</button>
+            <button onclick="navigateTo('contact'); toggleMobileMenu()" class="block w-full text-left font-semibold hover:text-primary transition py-2">ទំនាក់ទំនង</button>
+        </div>
+    </nav>
+
+    <!-- 1. HOME PAGE (ទំព័រដើម) -->
+    <div id="page-home" class="page-section">
+        <!-- HERO BANNER -->
+        <header class="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 py-20 lg:py-28">
+            <div class="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -z-10 animate-pulse"></div>
+            <div class="absolute bottom-0 left-0 w-96 h-96 bg-secondary/10 rounded-full blur-3xl -z-10"></div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6 text-center lg:text-left">
+                    <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary dark:bg-primary/20 text-sm font-bold tracking-wide">
+                        <i class="fa-solid fa-sparkles"></i> ជំនាន់ថ្មីនៃការរៀនសូត្រអនឡាញ
+                    </span>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
+                        អភិវឌ្ឍចំណេះដឹងរបស់អ្នកជាមួយ <br>
+                        <span class="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">EduLearn Platform</span>
+                    </h1>
+                    <p class="text-lg text-gray-600 dark:text-gray-300 max-w-xl mx-auto lg:mx-0">
+                        សិក្សាជាមួយគ្រូបង្រៀនជំនាញមកពីជុំវិញភពផែនដី។ ទទួលបានវិញ្ញាបនបត្រផ្លូវការ និងការអនុវត្តផ្ទាល់ជាមួយគម្រោងពិតប្រាកដ។
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                        <button onclick="navigateTo('courses')" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-primary to-secondary text-white font-bold text-lg hover:shadow-lg hover:shadow-primary/30 hover:scale-105 transition-all duration-300">
+                            ចាប់ផ្តើមរៀនឥឡូវនេះ <i class="fa-solid fa-arrow-right ml-2"></i>
+                        </button>
+                        <button onclick="navigateTo('about')" class="px-8 py-4 rounded-2xl border-2 border-gray-200 dark:border-slate-700 font-bold text-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition">
+                            ស្វែងយល់បន្ថែម
+                        </button>
+                    </div>
+                </div>
+                <!-- Image Side -->
+                <div class="relative flex justify-center">
+                    <div class="w-80 h-80 sm:w-96 sm:h-96 md:w-[450px] md:h-[450px] bg-gradient-to-tr from-primary to-secondary rounded-3xl overflow-hidden shadow-2xl relative transform rotate-3 hover:rotate-0 transition duration-500">
+                        <div class="absolute inset-0 bg-black/20"></div>
+                        <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=600" alt="សិស្សកំពុងរៀន" class="w-full h-full object-cover">
+                        <div class="absolute bottom-6 left-6 right-6 bg-white/90 dark:bg-slate-900/95 backdrop-blur px-6 py-4 rounded-2xl flex items-center justify-between shadow-xl">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center text-white"><i class="fa-solid fa-star"></i></div>
+                                <div>
+                                    <p class="font-bold text-sm text-slate-900 dark:text-white">ការវាយតម្លៃខ្ពស់</p>
+                                    <p class="text-xs text-gray-500">៤.៩/៥ ពីសិស្សានុសិស្ស</p>
+                                </div>
+                            </div>
+                            <span class="text-2xl font-bold text-primary">១០K+</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- CORE VALUES / BENEFIT SECTION -->
+        <section class="py-16 bg-white dark:bg-slate-900">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-12">
+                <div class="space-y-4 max-w-2xl mx-auto">
+                    <h2 class="text-3xl font-black">ហេតុអ្វីបានជាជ្រើសរើសយក EduLearn?</h2>
+                    <p class="text-gray-500">យើងផ្តល់ជូននូវប្រព័ន្ធគ្រប់គ្រងការសិក្សាដែលសំបូរបែប ងាយស្រួល និងពោរពេញដោយអន្តរកម្ម។</p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8 text-left">
+                    <div class="p-8 bg-gray-50 dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-slate-700 hover:shadow-xl transition duration-300">
+                        <div class="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center text-2xl mb-6"><i class="fa-solid fa-graduation-cap"></i></div>
+                        <h3 class="text-xl font-bold mb-3">គុណភាពបង្រៀនលំដាប់ថ្នាក់</h3>
+                        <p class="text-gray-500 text-sm">មេរៀនត្រូវបានតាក់តែងឡើងដោយគ្រូបង្រៀនអាជីព និងអ្នកជំនាញតាមវិស័យនីមួយៗផ្ទាល់។</p>
+                    </div>
+                    <div class="p-8 bg-gray-50 dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-slate-700 hover:shadow-xl transition duration-300">
+                        <div class="w-12 h-12 bg-secondary/10 text-secondary rounded-xl flex items-center justify-center text-2xl mb-6"><i class="fa-solid fa-shield-halved"></i></div>
+                        <h3 class="text-xl font-bold mb-3">វិញ្ញាបនបត្រផ្លូវការ</h3>
+                        <p class="text-gray-500 text-sm">ទទួលបានវិញ្ញាបនបត្របញ្ចប់ការសិក្សាដែលអាចបោះពុម្ពបានភ្លាមៗក្រោយពេលបញ្ចប់មេរៀន។</p>
+                    </div>
+                    <div class="p-8 bg-gray-50 dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-slate-700 hover:shadow-xl transition duration-300">
+                        <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-2xl mb-6"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                        <h3 class="text-xl font-bold mb-3">សិក្សាបានគ្រប់ពេលវេលា</h3>
+                        <p class="text-gray-500 text-sm">រៀនសូត្របាន ២៤ ម៉ោងលើ ២4 ម៉ោង មិនថានៅលើទូរស័ព្ទដៃ ថេប្លេត ឬកុំព្យូទ័រឡើយ។</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STATS COUNTERS -->
+        <section class="py-16 bg-gray-50 dark:bg-slate-950 transition-colors duration-300 border-y border-gray-100 dark:border-slate-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="text-center p-6 rounded-2xl bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800">
+                    <div class="text-4xl font-extrabold text-primary mb-2">១៥,០០០+</div>
+                    <div class="text-sm font-semibold text-gray-500">សិស្សចុះឈ្មោះ</div>
+                </div>
+                <div class="text-center p-6 rounded-2xl bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800">
+                    <div class="text-4xl font-extrabold text-secondary mb-2">១២០+</div>
+                    <div class="text-sm font-semibold text-gray-500">វគ្គសិក្សាជំនាញ</div>
+                </div>
+                <div class="text-center p-6 rounded-2xl bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800">
+                    <div class="text-4xl font-extrabold text-green-500 mb-2">៥០+</div>
+                    <div class="text-sm font-semibold text-gray-500">គ្រូបង្រៀនអាជីព</div>
+                </div>
+                <div class="text-center p-6 rounded-2xl bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800">
+                    <div class="text-4xl font-extrabold text-yellow-500 mb-2">៩៨%</div>
+                    <div class="text-sm font-semibold text-gray-500">អត្រាជោគជ័យ</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FEATURED COURSES MINI-GRID -->
+        <section class="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-12">
+                <div>
+                    <h2 class="text-3xl font-black mb-2">វគ្គសិក្សាឆ្នើមប្រចាំខែ</h2>
+                    <p class="text-gray-500">ជ្រើសរើសវគ្គសិក្សាដែលពេញនិយមបំផុតឥឡូវនេះ</p>
+                </div>
+                <button onclick="navigateTo('courses')" class="mt-4 sm:mt-0 px-6 py-3 bg-primary text-white font-bold rounded-xl shadow hover:bg-blue-600 transition">មើលវគ្គសិក្សាទាំងអស់ <i class="fa-solid fa-arrow-right ml-2"></i></button>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8" id="featured-courses-grid">
+                <!-- Javascript rendered standard 3 featured courses -->
+            </div>
+        </section>
+
+        <!-- TESTIMONIALS SECTION -->
+        <section class="py-20 bg-white dark:bg-slate-900">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-black text-center mb-12">មតិយោបល់ពិតៗពីសិស្សានុសិស្ស</h2>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="bg-gray-50 dark:bg-slate-800 p-8 rounded-3xl border border-gray-100 dark:border-slate-700 shadow-sm space-y-4">
+                        <div class="flex items-center gap-1 text-yellow-500"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                        <p class="text-sm text-gray-500 italic">"ខ្ញុំបានរៀនវគ្គសិក្សា Web Dev នៅទីនេះ ហើយឥឡូវនេះខ្ញុំទទួលបានការងារជា Junior Developer ហើយ! មេរៀនងាយស្រួលយល់ និងកូដគំរូល្អខ្លាំងណាស់។"</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-sm">ស</div>
+                            <div>
+                                <p class="font-bold text-sm">សេង សុខា</p>
+                                <p class="text-xs text-gray-400">Web Developer</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-slate-800 p-8 rounded-3xl border border-gray-100 dark:border-slate-700 shadow-sm space-y-4">
+                        <div class="flex items-center gap-1 text-yellow-500"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                        <p class="text-sm text-gray-500 italic">"ការរចនាវេទិការៀននេះពិតជាឡូយណាស់ ងាយស្រួលប្រើលើទូរស័ព្ទ។ ប្រព័ន្ធ Quiz និងតេស្តជួយឱ្យខ្ញុំដឹងពីសមត្ថភាពពិតរបស់ខ្ញុំ។"</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold text-sm">ច</div>
+                            <div>
+                                <p class="font-bold text-sm">ចាន់ ធារី</p>
+                                <p class="text-xs text-gray-400">សិស្សថ្នាក់ UX/UI</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-slate-800 p-8 rounded-3xl border border-gray-100 dark:border-slate-700 shadow-sm space-y-4">
+                        <div class="flex items-center gap-1 text-yellow-500"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                        <p class="text-sm text-gray-500 italic">"ខ្ញុំពេញចិត្តបំផុតនឹងមុខងារទាញយកវិញ្ញាបនបត្រដ៏ស្រស់ស្អាតភ្លាក្រោយពេលរៀនចប់។ នឹងគាំទ្របន្តទៀត!"</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white font-bold text-sm">ល</div>
+                            <div>
+                                <p class="font-bold text-sm">លី លាង</p>
+                                <p class="text-xs text-gray-400">សិស្សថ្នាក់ទីផ្សារ</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- 2. COURSES PAGE (ទំព័រវគ្គសិក្សា) -->
+    <div id="page-courses" class="page-section hidden py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto space-y-4 mb-12">
+                <h1 class="text-3xl sm:text-4xl font-black">បណ្ណាល័យវគ្គសិក្សាទាំងអស់</h1>
+                <p class="text-gray-500">ស្វែងរក និងចុះឈ្មោះចូលរៀនវគ្គសិក្សាជំនាញដែលត្រូវនឹងតម្រូវការទីផ្សារការងារនាពេលបច្ចុប្បន្ន។</p>
+            </div>
+
+            <!-- SEARCH AND FILTER INTERFACE -->
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between mb-8">
+                <!-- របារស្វែងរក -->
+                <div class="relative w-full md:w-96">
+                    <input type="text" id="course-page-search" onkeyup="filterCoursesLibrary()" placeholder="ស្វែងរកតាមឈ្មោះវគ្គសិក្សា..." class="w-full px-5 py-3 pl-12 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-primary text-sm">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-4 text-gray-400"></i>
+                </div>
+
+                <!-- តម្រងវគ្គសិក្សា (Filters) -->
+                <div class="flex flex-wrap gap-2 w-full md:w-auto">
+                    <button onclick="filterCategoryLibrary('all')" class="cat-lib-btn px-4 py-2 text-sm rounded-xl bg-primary text-white font-bold transition">ទាំងអស់</button>
+                    <button onclick="filterCategoryLibrary('tech')" class="cat-lib-btn px-4 py-2 text-sm rounded-xl bg-gray-50 dark:bg-slate-900 hover:bg-gray-100 dark:hover:bg-slate-700 font-semibold transition text-slate-700 dark:text-slate-300">បច្ចេកវិទ្យា</button>
+                    <button onclick="filterCategoryLibrary('design')" class="cat-lib-btn px-4 py-2 text-sm rounded-xl bg-gray-50 dark:bg-slate-900 hover:bg-gray-100 dark:hover:bg-slate-700 font-semibold transition text-slate-700 dark:text-slate-300">រចនា (UX/UI)</button>
+                    <button onclick="filterCategoryLibrary('business')" class="cat-lib-btn px-4 py-2 text-sm rounded-xl bg-gray-50 dark:bg-slate-900 hover:bg-gray-100 dark:hover:bg-slate-700 font-semibold transition text-slate-700 dark:text-slate-300">ធុរកិច្ច & ទីផ្សារ</button>
+                </div>
+            </div>
+
+            <!-- បញ្ជីកាតវគ្គសិក្សាក្នុងបណ្ណាល័យ -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8" id="library-courses-grid">
+                <!-- JavaScript renders complete list of available courses here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. ABOUT PAGE (ទំព័រអំពីយើង) -->
+    <div id="page-about" class="page-section hidden py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+            <!-- Header Section -->
+            <div class="text-center max-w-2xl mx-auto space-y-4">
+                <h1 class="text-3xl sm:text-4xl font-black">អំពីពួកយើង (About Us)</h1>
+                <p class="text-gray-500">ស្វែងយល់បន្ថែមអំពីដំណើរដើមទង និងគោលដៅក្នុងការអភិវឌ្ឍធនធានមនុស្សឌីជីថលនៅក្នុងប្រទេសកម្ពុជា។</p>
+            </div>
+
+            <!-- Intro Block -->
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6">
+                    <span class="px-4 py-1.5 bg-secondary/10 text-secondary rounded-full font-bold text-xs"><i class="fa-solid fa-star"></i> សាវតាររបស់យើង</span>
+                    <h2 class="text-2xl sm:text-3xl font-black">បេសកកម្មក្នុងការនាំយកការអប់រំស្តង់ដារដល់ដៃមនុស្សគ្រប់គ្នា</h2>
+                    <p class="text-gray-600 dark:text-gray-300 leading-relaxed text-sm sm:text-base">
+                        EduLearn Platform ត្រូវបានបង្កើតឡើងក្នុងឆ្នាំ ២០២៥ ក្នុងគោលបំណងធំមួយគឺ៖ បំបាត់ឧបសគ្គនៃការរៀនសូត្រ។ យើងជឿជាក់ថា មនុស្សគ្រប់រូបគួរតែមានសិទ្ធិចូលរៀនសូត្រនូវចំណេះដឹង និងបច្ចេកវិទ្យាថ្មីៗបំផុតដោយគ្មានកំណត់ព្រំដែនពេលវេលា ឬទីកន្លែងឡើយ។
+                    </p>
+                    <p class="text-gray-600 dark:text-gray-300 leading-relaxed text-sm sm:text-base">
+                        តាមរយៈការសហការជាមួយសាស្ត្រាចារ្យឆ្នើមៗ និងការបង្កើតប្រព័ន្ធសិក្សាដែលមានការចូលរួមដោយអន្តរកម្មខ្ពស់ យើងបានជួយសិស្សានុសិស្សជាង ១៥,០០០ នាក់ឱ្យអភិវឌ្ឍជំនាញផ្ទាល់ខ្លួន និងស្វែងរកឱកាសការងារដ៏ល្អប្រសើរ។
+                    </p>
+                </div>
+                <div class="relative">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-primary/20 to-secondary/20 rounded-3xl transform rotate-3 -z-10"></div>
+                    <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=600" alt="ថ្នាក់រៀនអនឡាញ" class="rounded-3xl shadow-xl w-full">
+                </div>
+            </div>
+
+            <!-- Core Pillars of Success -->
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm space-y-4">
+                    <div class="w-12 h-12 bg-blue-100 dark:bg-blue-950/50 text-primary rounded-xl flex items-center justify-center text-xl font-bold">១</div>
+                    <h3 class="text-lg font-bold">ចក្ខុវិស័យ (Vision)</h3>
+                    <p class="text-gray-500 text-sm">ក្លាយជាវេទិកាអប់រំអនឡាញលេខមួយនៅកម្ពុជា ដែលផ្តល់នូវការអប់រំប្រកបដោយចីរភាព គុណភាពខ្ពស់ និងអាចទុកចិត្តបានបំផុត។</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm space-y-4">
+                    <div class="w-12 h-12 bg-purple-100 dark:bg-purple-950/50 text-secondary rounded-xl flex items-center justify-center text-xl font-bold">២</div>
+                    <h3 class="text-lg font-bold">បេសកកម្ម (Mission)</h3>
+                    <p class="text-gray-500 text-sm">ជួយសិស្សក្នុងការកសាងសមត្ថភាពបច្ចេកវិទ្យាជាក់ស្តែង ដើម្បីឆ្លើយតបទៅនឹងតម្រូវការទីផ្សារការងារជាតិ និងអន្តរជាតិ។</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm space-y-4">
+                    <div class="w-12 h-12 bg-green-100 dark:bg-green-950/50 text-green-600 rounded-xl flex items-center justify-center text-xl font-bold">៣</div>
+                    <h3 class="text-lg font-bold">គុណតម្លៃ (Values)</h3>
+                    <p class="text-gray-500 text-sm">ភាពច្នៃប្រឌិតឥតឈប់ឈរ សមធម៌ក្នុងការទទួលបានចំណេះដឹង និងការគាំទ្រសិស្សានុសិស្សគ្រប់ពេលវេលា។</p>
+                </div>
+            </div>
+
+            <!-- Meet the core team -->
+            <div class="space-y-8">
+                <div class="text-center max-w-lg mx-auto space-y-2">
+                    <h2 class="text-2xl sm:text-3xl font-black">ក្រុមការងារដឹកនាំ និងគ្រូបង្គោល</h2>
+                    <p class="text-gray-500 text-sm">ជួបជាមួយស្ថាបនិក និងអ្នកជំនាញដែលនៅពីក្រោយភាពជោគជ័យរបស់អ្នក។</p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- Member 1 -->
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-slate-700 overflow-hidden text-center p-6 space-y-4 shadow-sm">
+                        <div class="w-24 h-24 rounded-full overflow-hidden mx-auto border-4 border-primary">
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150" alt="ចិន្តា មុនី" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg">ចិន្តា មុនី</h4>
+                            <p class="text-xs text-primary font-bold">សហស្ថាបនិក & គ្រូបង្គោល UI/UX</p>
+                        </div>
+                        <p class="text-gray-500 text-xs">បទពិសោធន៍រចនា App និង Website ជាង ៨ ឆ្នាំនៅក្រុមហ៊ុនបច្ចេកវិទ្យាក្រៅស្រុក។</p>
+                        <div class="flex justify-center gap-3 text-gray-400">
+                            <a href="#" class="hover:text-primary"><i class="fa-brands fa-linkedin"></i></a>
+                            <a href="#" class="hover:text-primary"><i class="fa-brands fa-facebook"></i></a>
+                        </div>
+                    </div>
+                    <!-- Member 2 -->
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-slate-700 overflow-hidden text-center p-6 space-y-4 shadow-sm">
+                        <div class="w-24 h-24 rounded-full overflow-hidden mx-auto border-4 border-secondary">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150" alt="សិលា ដារ៉ា" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg">សិលា ដារ៉ា</h4>
+                            <p class="text-xs text-secondary font-bold">ប្រធានផ្នែកបច្ចេកវិទ្យា & គ្រូ Full-Stack Web</p>
+                        </div>
+                        <p class="text-gray-500 text-xs">អ្នកជំនាញផ្នែក Node.js, React និង Cloud Infrastructure ជាមួយនឹងទឹកដៃសរសេរកូដដ៏ឥតខ្ចោះ។</p>
+                        <div class="flex justify-center gap-3 text-gray-400">
+                            <a href="#" class="hover:text-secondary"><i class="fa-brands fa-github"></i></a>
+                            <a href="#" class="hover:text-secondary"><i class="fa-brands fa-twitter"></i></a>
+                        </div>
+                    </div>
+                    <!-- Member 3 -->
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-slate-700 overflow-hidden text-center p-6 space-y-4 shadow-sm">
+                        <div class="w-24 h-24 rounded-full overflow-hidden mx-auto border-4 border-green-500">
+                            <img src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&q=80&w=150" alt="គីម ហេង" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg">គីម ហេង</h4>
+                            <p class="text-xs text-green-500 font-bold">អ្នកដឹកនាំទីផ្សារ & ប្រឹក្សាយោបល់</p>
+                        </div>
+                        <p class="text-gray-500 text-xs">បង្កើតយុទ្ធសាស្ត្រលូតលាស់ និងជួយតម្រង់ទិសដៅសិស្សដើម្បីទទួលបានការងារត្រឹមត្រូវតាមជំនាញ។</p>
+                        <div class="flex justify-center gap-3 text-gray-400">
+                            <a href="#" class="hover:text-green-500"><i class="fa-brands fa-linkedin"></i></a>
+                            <a href="#" class="hover:text-green-500"><i class="fa-brands fa-facebook"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. CONTACT PAGE (ទំព័រទំនាក់ទំនង) -->
+    <div id="page-contact" class="page-section hidden py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+            <!-- Header Section -->
+            <div class="text-center max-w-2xl mx-auto space-y-4">
+                <h1 class="text-3xl sm:text-4xl font-black">ទំនាក់ទំនងមកពួកយើង (Contact Us)</h1>
+                <p class="text-gray-500">ពួកយើងរីករាយក្នុងការឆ្លើយរាល់សំណួរ ឬចម្ងល់របស់អ្នក ២៤/៧។ សូមទាក់ទងមកយើងដោយសេរី!</p>
+            </div>
+
+            <!-- Content Grid: Form vs Info -->
+            <div class="grid md:grid-cols-2 gap-12">
+                <!-- Info Section -->
+                <div class="space-y-8">
+                    <div class="space-y-4">
+                        <h2 class="text-2xl font-bold">ព័ត៌មានលម្អិតទំនាក់ទំនង</h2>
+                        <p class="text-gray-500 text-sm leading-relaxed">អ្នកអាចអញ្ជើញមកការិយាល័យផ្ទាល់ ឬទំនាក់ទំនងតាមរយៈប្រព័ន្ធទូរស័ព្ទ អ៊ីមែល ឬបណ្តាញសង្គមផ្លូវការរបស់សាលា។</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-location-dot"></i></div>
+                            <div>
+                                <p class="text-xs text-gray-400">ការិយាល័យកណ្តាល</p>
+                                <p class="font-bold text-sm sm:text-base">អគារសហសិក្សា ផ្លូវ ២៧១ រាជធានីភ្នំពេញ កម្ពុជា</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-secondary/10 text-secondary rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-phone"></i></div>
+                            <div>
+                                <p class="text-xs text-gray-400">លេខទូរស័ព្ទ</p>
+                                <p class="font-bold text-sm sm:text-base">+855 12 345 678 / +855 87 999 888</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-envelope"></i></div>
+                            <div>
+                                <p class="text-xs text-gray-400">អ៊ីមែល</p>
+                                <p class="font-bold text-sm sm:text-base">support@edulearn.com</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Block (Accordion) -->
+                    <div class="space-y-4 pt-4">
+                        <h3 class="text-xl font-bold">សំណួរដែលសួរញឹកញាប់ (FAQ)</h3>
+                        <div class="space-y-3">
+                            <div class="border border-gray-200 dark:border-slate-800 rounded-xl overflow-hidden">
+                                <button onclick="toggleFaq(1)" class="w-full px-5 py-4 bg-white dark:bg-slate-800 text-left font-bold text-sm flex justify-between items-center">
+                                    <span>តើមានថ្នាក់រៀនផ្ទាល់ដែរឬទេ?</span>
+                                    <i id="faq-icon-1" class="fa-solid fa-chevron-down text-gray-400 transition-transform"></i>
+                                </button>
+                                <div id="faq-content-1" class="hidden px-5 py-4 border-t border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-900/50 text-xs sm:text-sm text-gray-500 leading-relaxed">
+                                    សព្វថ្ងៃ EduLearn ផ្តោតទៅលើការបណ្តុះបណ្តាលអនឡាញ ១០០% ជាមួយនឹងវីដេអូមេរៀនគុណភាពខ្ពស់ និងការប្រឹក្សាយោបល់ជាក្រុម ដើម្បីធានាភាពបត់បែនខ្ពស់សម្រាប់សិស្សានុសិស្សដែលរវល់ការងារ ឬសិក្សា។
+                                </div>
+                            </div>
+                            <div class="border border-gray-200 dark:border-slate-800 rounded-xl overflow-hidden">
+                                <button onclick="toggleFaq(2)" class="w-full px-5 py-4 bg-white dark:bg-slate-800 text-left font-bold text-sm flex justify-between items-center">
+                                    <span>តើវិញ្ញាបនបត្រមានការទទួលស្គាល់ដែរឬទេ?</span>
+                                    <i id="faq-icon-2" class="fa-solid fa-chevron-down text-gray-400 transition-transform"></i>
+                                </button>
+                                <div id="faq-content-2" class="hidden px-5 py-4 border-t border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-900/50 text-xs sm:text-sm text-gray-500 leading-relaxed">
+                                    បាទ! វិញ្ញាបនបត្របញ្ចប់ការសិក្សារបស់យើងត្រូវបានទទួលស្គាល់ដោយក្រុមហ៊ុនដៃគូសហការ និងអាចប្រើប្រាស់ដើម្បីភ្ជាប់ជាមួយ CV ឬ Portfolio ដើម្បីស្វែងរកការងារបាន។
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Section -->
+                <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-gray-100 dark:border-slate-700 shadow-md space-y-6">
+                    <h3 class="text-xl font-bold">ផ្ញើសារសាកសួរព័ត៌មាន</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">ឈ្មោះពេញ</label>
+                            <input type="text" id="contact-name" placeholder="បញ្ចូលឈ្មោះរបស់អ្នក" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-primary text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">អ៊ីមែលទំនាក់ទំនង</label>
+                            <input type="email" id="contact-email" placeholder="example@gmail.com" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-primary text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">សាររបស់អ្នក</label>
+                            <textarea id="contact-message" placeholder="តើអ្នកចង់សាកសួរអំពីវគ្គសិក្សាណាដែរ?" rows="4" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-primary text-sm"></textarea>
+                        </div>
+                        <button onclick="handleContactSubmit()" class="w-full py-3.5 bg-gradient-to-r from-primary to-secondary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] transition">ផ្ញើសារឥឡូវនេះ <i class="fa-solid fa-paper-plane ml-2"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mock Map Widget -->
+            <div class="bg-gray-100 dark:bg-slate-800 rounded-3xl p-4 border border-gray-200 dark:border-slate-700 overflow-hidden shadow-sm h-72 relative flex items-center justify-center">
+                <div class="absolute inset-0 opacity-40 bg-[radial-gradient(#3B82F6_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                <div class="text-center z-10 space-y-3">
+                    <div class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center mx-auto text-xl shadow-lg"><i class="fa-solid fa-map-location-dot"></i></div>
+                    <h4 class="font-bold text-slate-800 dark:text-white">ផែនទីទីតាំងការិយាល័យ (Mock Location Map)</h4>
+                    <p class="text-xs text-gray-500 max-w-sm">EduLearn HQ - ផ្លូវ ២៧១ សង្កាត់បឹងសាឡាង ខណ្ឌទួលគោក រាជធានីភ្នំពេញ</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. LOGIN PAGE (ទំព័រចូលគណនី) -->
+    <div id="page-login" class="page-section hidden py-20 flex justify-center items-center min-h-[calc(100vh-4rem)]">
+        <div class="bg-white dark:bg-slate-800 p-8 sm:p-10 rounded-3xl border border-gray-100 dark:border-slate-700 shadow-2xl max-w-md w-full mx-4 space-y-6 relative">
+            <div class="text-center">
+                <h2 class="text-3xl font-black">ចូលប្រើប្រាស់គណនី</h2>
+                <p class="text-gray-500 mt-2 text-sm">សូមជ្រើសរើសតួនាទី និងចូលទៅកាន់ប្រព័ន្ធសិក្សា</p>
+            </div>
+
+            <!-- តួនាទីទស្សនាប្រព័ន្ធសាកល្បង -->
+            <div class="grid grid-cols-3 gap-2 bg-gray-50 dark:bg-slate-900 p-1.5 rounded-xl border border-gray-100 dark:border-slate-800">
+                <button onclick="selectLoginRole('student')" id="role-btn-student" class="py-2 text-xs font-bold rounded-lg transition-all bg-primary text-white">សិស្ស</button>
+                <button onclick="selectLoginRole('teacher')" id="role-btn-teacher" class="py-2 text-xs font-bold rounded-lg transition-all hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-500">គ្រូបង្រៀន</button>
+                <button onclick="selectLoginRole('admin')" id="role-btn-admin" class="py-2 text-xs font-bold rounded-lg transition-all hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-500">អ្នកគ្រប់គ្រង</button>
+            </div>
+
+            <!-- ទម្រង់បែបបទ -->
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold mb-2">អ៊ីមែល ឬលេខទូរស័ព្ទ</label>
+                    <input type="text" id="login-email" value="student@edulearn.com" required class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <label class="text-sm font-semibold">លេខកូដសម្ងាត់</label>
+                        <button type="button" onclick="navigateTo('forgot')" class="text-xs text-primary hover:underline">ភ្លេចលេខសម្ងាត់?</button>
+                    </div>
+                    <input type="password" id="login-password" value="123456" required class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+                <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-primary to-secondary text-white font-bold rounded-xl shadow-lg hover:scale-[1.01] transition duration-300">
+                    ចូលទៅកាន់ប្រព័ន្ធ <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </form>
+
+            <div class="text-center text-sm text-gray-500 pt-4 border-t border-gray-100 dark:border-slate-700">
+                មិនទាន់មានគណនី? <button onclick="navigateTo('register')" class="text-primary font-bold hover:underline">ចុះឈ្មោះនៅទីនេះ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. REGISTER PAGE (ទំព័រចុះឈ្មោះ) -->
+    <div id="page-register" class="page-section hidden py-20 flex justify-center items-center min-h-[calc(100vh-4rem)]">
+        <div class="bg-white dark:bg-slate-800 p-8 sm:p-10 rounded-3xl border border-gray-100 dark:border-slate-700 shadow-2xl max-w-md w-full mx-4 space-y-6">
+            <div class="text-center">
+                <h2 class="text-3xl font-black">បង្កើតគណនីថ្មី</h2>
+                <p class="text-gray-500 mt-2">រួមដំណើរការសិក្សាជាមួយសិស្សជាង ១៥K+ នាក់</p>
+            </div>
+            <form onsubmit="handleRegister(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold mb-2">ឈ្មោះពេញ</label>
+                    <input type="text" id="reg-name" placeholder="ឧ. ចាន់ វាសនា" required class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">អ៊ីមែល</label>
+                    <input type="email" id="reg-email" placeholder="example@gmail.com" required class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">លេខកូដសម្ងាត់</label>
+                    <input type="password" id="reg-password" placeholder="យ៉ាងតិច ៦ ខ្ទង់" required class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+                <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-primary to-secondary text-white font-bold rounded-xl shadow-lg hover:scale-[1.01] transition duration-300">
+                    ចុះឈ្មោះឥឡូវនេះ
+                </button>
+            </form>
+            <div class="text-center text-sm text-gray-500 pt-4 border-t border-gray-100 dark:border-slate-700">
+                មានគណនីរួចហើយ? <button onclick="navigateTo('login')" class="text-primary font-bold hover:underline">ចូលគណនី</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. FORGOT PASSWORD (ភ្លេចលេខសម្ងាត់) -->
+    <div id="page-forgot" class="page-section hidden py-20 flex justify-center items-center min-h-[calc(100vh-4rem)]">
+        <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-gray-100 dark:border-slate-700 shadow-2xl max-w-md w-full mx-4 space-y-6">
+            <div class="text-center">
+                <h2 class="text-3xl font-black">កំណត់លេខសម្ងាត់ឡើងវិញ</h2>
+                <p class="text-gray-500 mt-2">សូមបញ្ចូលអ៊ីមែលរបស់អ្នកដើម្បីទទួលតំណភ្ជាប់</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold mb-2">អ៊ីមែល</label>
+                    <input type="email" id="forgot-email" placeholder="example@gmail.com" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+                <button onclick="handleForgot()" class="w-full py-3.5 bg-gradient-to-r from-primary to-secondary text-white font-bold rounded-xl shadow-lg hover:scale-[1.01] transition">
+                    ផ្ញើតំណភ្ជាប់
+                </button>
+            </div>
+            <button onclick="navigateTo('login')" class="block w-full text-center text-sm text-primary hover:underline">ត្រឡប់ទៅទំព័រចូលគណនី</button>
+        </div>
+    </div>
+
+    <!-- 8. STUDENT DASHBOARD (ផ្ទាំងគ្រប់គ្រងសិស្ស) -->
+    <div id="page-student-dashboard" class="page-section hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <!-- Dashboard Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-8 rounded-3xl shadow-xl mb-10">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-black">សួស្តី, <span id="student-name-display">សិស្សសាកល្បង</span>! 👋</h1>
+                <p class="opacity-90 mt-1">រីករាយក្នុងការបន្តដំណើរការសិក្សាថ្ងៃនេះ! វឌ្ឍនភាពសរុប៖ ៧៥%</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="showModal('certificate')" class="px-5 py-2.5 bg-white text-indigo-700 font-bold rounded-xl shadow-lg hover:bg-slate-100 transition"><i class="fa-solid fa-award mr-2"></i>ទាញយក Certificate</button>
+            </div>
+        </div>
+
+        <div class="grid lg:grid-cols-4 gap-8">
+            <!-- Sidebar Navigation Tabs -->
+            <div class="space-y-3 lg:col-span-1">
+                <button onclick="switchStudentTab('overview')" id="stu-tab-overview" class="student-tab-btn w-full text-left px-5 py-3 rounded-xl bg-primary text-white font-bold flex items-center gap-3 transition">
+                    <i class="fa-solid fa-chart-pie"></i> ទិដ្ឋភាពទូទៅ
+                </button>
+                <button onclick="switchStudentTab('courses')" id="stu-tab-courses" class="student-tab-btn w-full text-left px-5 py-3 rounded-xl bg-white dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 font-bold flex items-center gap-3 transition">
+                    <i class="fa-solid fa-play-circle"></i> វគ្គសិក្សារបស់ខ្ញុំ
+                </button>
+                <button onclick="switchStudentTab('quiz')" id="stu-tab-quiz" class="student-tab-btn w-full text-left px-5 py-3 rounded-xl bg-white dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 font-bold flex items-center gap-3 transition">
+                    <i class="fa-solid fa-question-circle"></i> ល្បងសមត្ថភាព (Quiz)
+                </button>
+                <button onclick="switchStudentTab('forum')" id="stu-tab-forum" class="student-tab-btn w-full text-left px-5 py-3 rounded-xl bg-white dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 font-bold flex items-center gap-3 transition">
+                    <i class="fa-solid fa-comments"></i> វេទិកាពិភាក្សា
+                </button>
+            </div>
+
+            <!-- Content Area -->
+            <div class="lg:col-span-3 space-y-8">
+                <!-- TAB: OVERVIEW -->
+                <div id="stu-content-overview" class="student-content space-y-6">
+                    <div class="grid sm:grid-cols-3 gap-6">
+                        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-100 dark:border-slate-700 shadow flex items-center gap-4">
+                            <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-book"></i></div>
+                            <div>
+                                <p class="text-xs text-gray-400">វគ្គសិក្សាដែលបានរៀន</p>
+                                <p class="text-2xl font-black">៣ វគ្គ</p>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-100 dark:border-slate-700 shadow flex items-center gap-4">
+                            <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-clock"></i></div>
+                            <div>
+                                <p class="text-xs text-gray-400">ម៉ោងសិក្សាដែលចំណាយ</p>
+                                <p class="text-2xl font-black">៤៨ ម៉ោង</p>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-100 dark:border-slate-700 shadow flex items-center gap-4">
+                            <div class="w-12 h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-graduation-cap"></i></div>
+                            <div>
+                                <p class="text-xs text-gray-400">មធ្យមភាគពិន្ទុ</p>
+                                <p class="text-2xl font-black">៩២%</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-gray-100 dark:border-slate-700 shadow space-y-4">
+                        <h3 class="text-lg font-bold">តាមដានវឌ្ឍនភាពសិក្សា (Progress Tracking)</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>Full-Stack Web Development</span>
+                                    <span class="font-bold">៨០%</span>
+                                </div>
+                                <div class="w-full bg-gray-100 dark:bg-slate-700 h-3 rounded-full overflow-hidden">
+                                    <div class="bg-primary h-full rounded-full transition-all duration-500" style="width: 80%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>UI/UX Design with Figma</span>
+                                    <span class="font-bold">៥៥%</span>
+                                </div>
+                                <div class="w-full bg-gray-100 dark:bg-slate-700 h-3 rounded-full overflow-hidden">
+                                    <div class="bg-secondary h-full rounded-full transition-all duration-500" style="width: 55%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: MY COURSES (CLASSROOM ENVIRONMENT) -->
+                <div id="stu-content-courses" class="student-content hidden space-y-6">
+                    <!-- Enrolled Courses List Grid (Default view) -->
+                    <div id="classroom-courses-list" class="space-y-4">
+                        <h2 class="text-xl font-bold">វគ្គសិក្សាសកម្មរបស់ខ្ញុំ</h2>
+                        <div class="grid md:grid-cols-2 gap-6" id="my-enrolled-courses-grid">
+                            <!-- Dynamic content generated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Single Course Interactive Classroom Layout (Hidden by default, activated on Course entry) -->
+                    <div id="classroom-active-view" class="hidden space-y-6">
+                        <button onclick="exitClassroom()" class="px-4 py-2 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-xs sm:text-sm font-bold rounded-xl transition flex items-center gap-2">
+                            <i class="fa-solid fa-arrow-left"></i> ត្រឡប់ទៅបញ្ជីវគ្គសិក្សា
+                        </button>
+                        
+                        <div class="grid lg:grid-cols-3 gap-8">
+                            <!-- Video Player & Materials (Left) -->
+                            <div class="lg:col-span-2 space-y-6">
+                                <div class="aspect-video rounded-3xl overflow-hidden bg-black shadow-lg relative border border-gray-100 dark:border-slate-800">
+                                    <!-- HTML5 Video Player ធានាការចាក់មើលបាន ១០០% ក្នុងវេបសាយ -->
+                                    <video id="classroom-player" class="w-full h-full object-contain" controls preload="auto" controlsList="nodownload">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                </div>
+                                
+                                <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-gray-100 dark:border-slate-700 shadow-sm space-y-6">
+                                    <div>
+                                        <span class="px-3 py-1 bg-primary/15 text-primary text-xs font-bold rounded-lg uppercase">ឯកសារសិក្សា</span>
+                                        <h3 id="classroom-lesson-title" class="text-xl font-black mt-2 text-slate-800 dark:text-white">ចំណងជើងមេរៀន</h3>
+                                    </div>
+                                    
+                                    <!-- Dynamic Download Trigger -->
+                                    <div class="p-4 bg-gray-50 dark:bg-slate-900 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border border-gray-100 dark:border-slate-800">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-12 h-12 bg-red-100 dark:bg-red-950/40 text-red-600 rounded-xl flex items-center justify-center text-xl">
+                                                <i class="fa-solid fa-file-pdf"></i>
+                                            </div>
+                                            <div>
+                                                <p id="classroom-doc-name" class="font-bold text-sm text-slate-800 dark:text-white truncate max-w-xs">មេរៀនសិក្សា.pdf</p>
+                                                <p class="text-xs text-gray-400">ទំហំឯកសារ៖ ២.៤ MB</p>
+                                            </div>
+                                        </div>
+                                        <a id="classroom-doc-link" href="#" target="_blank" class="w-full sm:w-auto text-center px-5 py-3 bg-gradient-to-r from-primary to-secondary text-white text-xs font-bold rounded-xl hover:shadow-md transition flex items-center justify-center gap-1.5 shrink-0">
+                                            <i class="fa-solid fa-download"></i> ទាញយកស្លាយ & លំហាត់អនុវត្ត
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Syllabus Playlist Accordion (Right) -->
+                            <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-gray-100 dark:border-slate-700 shadow-sm space-y-4 h-fit">
+                                <div class="border-b border-gray-100 dark:border-slate-700 pb-3 flex justify-between items-center">
+                                    <h3 class="font-black text-base text-slate-800 dark:text-white flex items-center gap-2">
+                                        <i class="fa-solid fa-list-ol text-primary"></i> មាតិកាវគ្គសិក្សា
+                                    </h3>
+                                    <span class="text-xs font-semibold text-gray-400" id="classroom-lessons-count">៣ មេរៀន</span>
+                                </div>
+                                
+                                <div id="classroom-playlist" class="space-y-2 max-h-[420px] overflow-y-auto pr-1">
+                                    <!-- Playlist elements mapped dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: QUIZ -->
+                <div id="stu-content-quiz" class="student-content hidden bg-white dark:bg-slate-800 p-8 rounded-3xl border border-gray-100 dark:border-slate-700 shadow space-y-6">
+                    <div class="flex justify-between items-center pb-4 border-b border-gray-100 dark:border-slate-700">
+                        <div>
+                            <h2 class="text-xl font-bold">តេស្តវាស់ស្ទង់សមត្ថភាពប្រចាំសប្តាហ៍</h2>
+                            <p class="text-xs text-gray-400">ប្រធានបទ៖ JavaScript & HTML</p>
+                        </div>
+                        <span id="quiz-timer" class="text-lg font-bold text-red-500 bg-red-100 px-3 py-1.5 rounded-lg"><i class="fa-solid fa-clock mr-2"></i>១០:០០</span>
+                    </div>
+
+                    <div id="quiz-question-container" class="space-y-6">
+                        <p class="text-lg font-semibold" id="quiz-question">សំណួរទី ១៖ តើ JavaScript ប្រើសម្រាប់ធ្វើអ្វី?</p>
+                        <div class="grid gap-3" id="quiz-options"></div>
+                        <button onclick="submitQuiz()" class="px-6 py-3 bg-primary text-white font-bold rounded-xl shadow hover:bg-blue-600 transition">បញ្ជូនលទ្ធផល</button>
+                    </div>
+
+                    <div id="quiz-result" class="hidden text-center p-6 bg-green-50 dark:bg-green-950/20 rounded-2xl border border-green-200">
+                        <h3 class="text-2xl font-bold text-green-600">អបអរសាទរ! </h3>
+                        <p class="text-lg mt-2">អ្នកទទួលបានពិន្ទុ៖ <span id="quiz-score" class="font-bold text-green-600">៣/៣</span> (១០០%)</p>
+                    </div>
+                </div>
+
+                <!-- TAB: DISCUSSION FORUM -->
+                <div id="stu-content-forum" class="student-content hidden bg-white dark:bg-slate-800 p-8 rounded-3xl border border-gray-100 dark:border-slate-700 shadow space-y-6">
+                    <h2 class="text-xl font-bold">វេទិកាពិភាក្សា និងសួរសំណួរ (Discussion Forum)</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 dark:bg-slate-900 rounded-2xl space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-sm text-primary">ណារ៉ុង</span>
+                                <span class="text-xs text-gray-400">២ ម៉ោងមុន</span>
+                            </div>
+                            <p class="text-sm">តើធ្វើដូចម្តេចដើម្បីតម្រង់ទិស Flexbox ឱ្យនៅចំកណ្តាលយ៉ាងងាយស្រួល?</p>
+                            <div class="pl-4 border-l-2 border-primary py-2 text-xs text-gray-500 dark:text-gray-400">
+                                <span class="font-semibold text-secondary">គ្រូបង្រៀន សិលា៖</span> ប្រើ `display: flex; justify-content: center; align-items: center;` នៅលើ Container មេ។
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 pt-4 border-t border-gray-100 dark:border-slate-700">
+                            <textarea id="forum-input" placeholder="សរសេរសំណួររបស់អ្នកនៅទីនេះ..." rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-primary"></textarea>
+                            <button onclick="postToForum()" class="px-5 py-2.5 bg-gradient-to-r from-primary to-secondary text-white font-bold rounded-xl transition">ផ្ញើសំណួរ</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 9. TEACHER DASHBOARD (ផ្ទាំងគ្រប់គ្រងគ្រូបង្រៀន) -->
+    <div id="page-teacher-dashboard" class="page-section hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white p-8 rounded-3xl shadow-xl mb-10">
+            <div>
+                <h1 class="text-3xl font-black">ផ្ទាំងគ្រប់គ្រងគ្រូបង្រៀន 👩‍🏫</h1>
+                <p class="opacity-90 mt-1">គ្រប់គ្រងវគ្គសិក្សា ដាក់កិច្ចការ និងពិនិត្យសមត្ថភាពសិស្សានុសិស្ស</p>
+            </div>
+            <button onclick="showModal('createCourse')" class="px-5 py-2.5 bg-white text-purple-700 font-bold rounded-xl shadow-lg hover:bg-slate-100 transition"><i class="fa-solid fa-plus mr-2"></i>បង្កើតវគ្គសិក្សាថ្មី</button>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6 mb-10">
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-100 dark:border-slate-700 shadow text-center">
+                <i class="fa-solid fa-users text-purple-500 text-3xl mb-2"></i>
+                <h4 class="text-gray-400 text-sm">សិស្សសរុប</h4>
+                <p class="text-3xl font-black mt-1">៣៥០ នាក់</p>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-100 dark:border-slate-700 shadow text-center">
+                <i class="fa-solid fa-graduation-cap text-purple-500 text-3xl mb-2"></i>
+                <h4 class="text-gray-400 text-sm">វគ្គសិក្សាសកម្ម</h4>
+                <p class="text-3xl font-black mt-1">៤ វគ្គ</p>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-100 dark:border-slate-700 shadow text-center">
+                <i class="fa-solid fa-clipboard-check text-purple-500 text-3xl mb-2"></i>
+                <h4 class="text-gray-400 text-sm">ការដាក់កិច្ចការ (Assignments)</h4>
+                <p class="text-3xl font-black mt-1">១៥ កិច្ចការ</p>
+            </div>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-3xl border border-gray-100 dark:border-slate-700 shadow space-y-4">
+                <h3 class="text-xl font-bold">ពិនិត្យ និងផ្តល់ពិន្ទុ (Grading Center)</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-gray-50 dark:bg-slate-900 uppercase text-xs">
+                            <tr>
+                                <th class="p-4">ឈ្មោះសិស្ស</th>
+                                <th class="p-4">វគ្គសិក្សា</th>
+                                <th class="p-4">កិច្ចការ</th>
+                                <th class="p-4">ស្ថានភាព</th>
+                                <th class="p-4">សកម្មភាព</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-gray-100 dark:border-slate-700">
+                                <td class="p-4 font-bold">កែវ ពិសិដ្ឋ</td>
+                                <td class="p-4">Full-Stack Web</td>
+                                <td class="p-4">បង្កើត Landing Page</td>
+                                <td class="p-4"><span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">មិនទាន់កែ</span></td>
+                                <td class="p-4"><button onclick="gradeAssignment('កែវ ពិសិដ្ឋ')" class="text-primary hover:underline font-semibold">ផ្តល់ពិន្ទុ</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-gray-100 dark:border-slate-700 shadow space-y-4">
+                <h3 class="text-xl font-bold">សិស្សសកម្មបំផុត</h3>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center text-white"><i class="fa-solid fa-trophy"></i></div>
+                            <div>
+                                <h4 class="font-bold text-sm">សុខ ជា</h4>
+                                <p class="text-xs text-gray-400">វឌ្ឍនភាព៖ ៩៨%</p>
+                            </div>
+                        </div>
+                        <span class="text-sm font-semibold">ពិន្ទុ៖ ៥០០</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 10. ADMIN DASHBOARD (ផ្ទាំងគ្រប់គ្រងអ្នកគ្រប់គ្រង) -->
+    <div id="page-admin-dashboard" class="page-section hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-red-600 to-orange-600 text-white p-8 rounded-3xl shadow-xl mb-10">
+            <div>
+                <h1 class="text-3xl font-black">ផ្ទាំងគ្រប់គ្រងអ្នកគ្រប់គ្រង (Admin) 👑</h1>
+                <p class="opacity-90 mt-1">គ្រប់គ្រងប្រព័ន្ធសិក្សាទាំងមូល សិស្ស គ្រូបង្រៀន និងតារាងទិន្នន័យ (Database Tables)</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-100 dark:border-slate-700 shadow text-center">
+                <i class="fa-solid fa-users-cog text-red-500 text-3xl mb-2"></i>
+                <h4 class="text-gray-400 text-sm">គ្រូសរុប</h4>
+                <p class="text-3xl font-black mt-1">៥៤ នាក់</p>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-100 dark:border-slate-700 shadow text-center">
+                <i class="fa-solid fa-graduation-cap text-red-500 text-3xl mb-2"></i>
+                <h4 class="text-gray-400 text-sm">វគ្គសិក្សាសរុប</h4>
+                <p class="text-3xl font-black mt-1">១២៥ វគ្គ</p>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-100 dark:border-slate-700 shadow text-center">
+                <i class="fa-solid fa-wallet text-red-500 text-3xl mb-2"></i>
+                <h4 class="text-gray-400 text-sm">ចំណូលសរុប</h4>
+                <p class="text-3xl font-black mt-1">$១៥,៤៥០</p>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-100 dark:border-slate-700 shadow text-center">
+                <i class="fa-solid fa-database text-red-500 text-3xl mb-2"></i>
+                <h4 class="text-gray-400 text-sm">តារាងទិន្នន័យ</h4>
+                <p class="text-3xl font-black mt-1">៨ តារាង</p>
+            </div>
+        </div>
+
+        <!-- DATABASE VISUALIZER -->
+        <div class="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-3xl border border-gray-100 dark:border-slate-700 shadow space-y-6">
+            <div class="flex justify-between items-center border-b border-gray-100 dark:border-slate-700 pb-4">
+                <div>
+                    <h3 class="text-xl font-bold flex items-center gap-2 text-red-500"><i class="fa-solid fa-table-list"></i> Database Tables Visualizer</h3>
+                    <p class="text-xs text-gray-400">តំណាងរចនាសម្ព័ន្ធទិន្នន័យ MySQL (Relational Schema)</p>
+                </div>
+                <select id="db-table-select" onchange="renderDBTable()" class="px-4 py-2 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <option value="users">តារាង Users (អ្នកប្រើប្រាស់)</option>
+                    <option value="courses">តារាង Courses (វគ្គសិក្សា)</option>
+                    <option value="lessons">តារាង Lessons (មេរៀន)</option>
+                    <option value="assignments">តារាង Assignments (កិច្ចការ)</option>
+                    <option value="quizzes">តារាង Quizzes (កម្រងសំណួរ)</option>
+                    <option value="results">តារាង Results (លទ្ធផលប្រឡង)</option>
+                    <option value="certificates">តារាង Certificates (វិញ្ញាបនបត្រ)</option>
+                    <option value="notifications">តារាង Notifications (ការជូនដំណឹង)</option>
+                </select>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm" id="db-visual-table"></table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 11. MODAL WINDOWS -->
+    <!-- Certificate Modal -->
+    <div id="modal-certificate" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-2xl w-full border border-gray-100 dark:border-slate-800 space-y-6 relative overflow-hidden">
+            <div class="border-8 border-double border-yellow-500 p-8 text-center space-y-6 relative bg-amber-50/50 dark:bg-slate-900">
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-yellow-500/10 rounded-full blur-xl"></div>
+                <div class="w-20 h-20 bg-yellow-500 rounded-full mx-auto flex items-center justify-center text-white text-3xl shadow-lg"><i class="fa-solid fa-graduation-cap"></i></div>
+                <h2 class="text-2xl sm:text-3xl font-black bg-gradient-to-r from-yellow-600 to-amber-700 bg-clip-text text-transparent">វិញ្ញាបនបត្របញ្ចប់ការសិក្សា</h2>
+                <p class="text-xs tracking-widest text-gray-400 uppercase">បញ្ជាក់ថា</p>
+                <h3 class="text-2xl font-black text-slate-800 dark:text-white" id="cert-student-name">សិស្សសាកល្បង</h3>
+                <p class="text-sm text-gray-500 max-w-md mx-auto">បានបញ្ចប់វគ្គសិក្សាដោយជោគជ័យ និងទទួលបានលទ្ធផលប្រសើរលើមុខវិជ្ជា <br><span class="font-bold text-primary">"Full-Stack Web Development"</span></p>
+                <div class="flex justify-between items-center pt-8 border-t border-yellow-500/20 max-w-xs mx-auto text-xs text-gray-400">
+                    <div>
+                        <p class="font-bold text-slate-700 dark:text-slate-300">សិលា ដារ៉ា</p>
+                        <p>គ្រូបង្គោល</p>
+                    </div>
+                    <div>
+                        <p class="font-bold text-slate-700 dark:text-slate-300">EduLearn</p>
+                        <p>កាលបរិច្ឆេទ៖ ១២ មិថុនា ២០២៦</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end gap-3">
+                <button onclick="hideModal('certificate')" class="px-5 py-2.5 bg-gray-100 dark:bg-slate-800 text-sm font-semibold rounded-xl transition">បិទ</button>
+                <button onclick="printCertificate()" class="px-5 py-2.5 bg-yellow-500 text-white font-bold text-sm rounded-xl hover:bg-yellow-600 transition"><i class="fa-solid fa-print mr-2"></i>បោះពុម្ព (Print)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Course Modal -->
+    <div id="modal-createCourse" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-md w-full border border-gray-100 dark:border-slate-800 space-y-6">
+            <h2 class="text-2xl font-black">បង្កើតវគ្គសិក្សាថ្មី</h2>
+            <form onsubmit="handleCreateCourse(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold mb-1">ឈ្មោះវគ្គសិក្សា</label>
+                    <input type="text" id="new-course-title" placeholder="ឧ. រៀន Python ពីមូលដ្ឋានគ្រឹះ" required class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 focus:outline-none text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1">ប្រភេទ</label>
+                    <select id="new-course-cat" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 focus:outline-none text-sm">
+                        <option value="tech">បច្ចេកវិទ្យា</option>
+                        <option value="design">រចនា (UX/UI)</option>
+                        <option value="business">ធុរកិច្ច & ទីផ្សារ</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1">តម្លៃសិក្សា ($)</label>
+                    <input type="number" id="new-course-price" placeholder="២៩.៩៩" required class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 focus:outline-none text-sm">
+                </div>
+                <div class="flex justify-end gap-2 pt-4">
+                    <button type="button" onclick="hideModal('createCourse')" class="px-5 py-2.5 bg-gray-100 dark:bg-slate-800 text-sm font-semibold rounded-xl">បោះបង់</button>
+                    <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-primary to-secondary text-white font-bold text-sm rounded-xl shadow-lg">បង្កើតវគ្គសិក្សា</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-white dark:bg-slate-950 text-slate-500 border-t border-gray-100 dark:border-slate-800 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid md:grid-cols-4 gap-8">
+            <div class="space-y-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-gradient-to-tr from-primary to-secondary rounded-lg flex items-center justify-center text-white font-bold"><i class="fa-solid fa-graduation-cap"></i></div>
+                    <span class="text-xl font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">EduLearn</span>
+                </div>
+                <p class="text-sm">វេទិកាអប់រំឌីជីថលដើម្បីបង្កើនសមត្ថភាពពិតប្រាកដ និងបង្កើតអនាគតជោគជ័យរបស់អ្នក។</p>
+                <div class="flex gap-3 text-lg">
+                    <a href="#" class="hover:text-primary transition"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="#" class="hover:text-primary transition"><i class="fa-brands fa-telegram"></i></a>
+                    <a href="#" class="hover:text-primary transition"><i class="fa-brands fa-youtube"></i></a>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-bold text-slate-800 dark:text-white mb-4">តំណភ្ជាប់សំខាន់ៗ</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><button onclick="navigateTo('home')" class="hover:text-primary transition">ទំព័រដើម</button></li>
+                    <li><button onclick="navigateTo('courses')" class="hover:text-primary transition">វគ្គសិក្សា</button></li>
+                    <li><button onclick="navigateTo('about')" class="hover:text-primary transition">អំពីយើង</button></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-slate-800 dark:text-white mb-4">វគ្គសិក្សាពេញនិយម</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><button onclick="navigateTo('courses')" class="hover:text-primary transition">Full-Stack Web Dev</button></li>
+                    <li><button onclick="navigateTo('courses')" class="hover:text-primary transition">UI/UX Design</button></li>
+                    <li><button onclick="navigateTo('courses')" class="hover:text-primary transition">Digital Marketing</button></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-slate-800 dark:text-white mb-4">ទទួលបានព្រឹត្តិបត្រព័ត៌មាន</h4>
+                <p class="text-sm mb-4">ចុះឈ្មោះដើម្បីទទួលបានព័ត៌មានថ្មីៗ និងប្រូម៉ូសិនពិសេស។</p>
+                <div class="flex gap-2">
+                    <input type="email" placeholder="អ៊ីមែល" class="px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-900 w-full focus:outline-none focus:ring-1 focus:ring-primary">
+                    <button class="px-3 py-2 bg-primary text-white rounded-lg text-sm font-bold"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-gray-100 dark:border-slate-800 py-6 text-center text-xs">
+            <p>© ២០២៦ EduLearn Platform. រក្សាសិទ្ធិគ្រប់យ៉ាងដោយក្ដីស្រឡាញ់។</p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Global State
+        let currentUser = null;
+        let activeRole = 'student';
+        let darkMode = false; // ប្រកាសអថេរ darkMode ឡើងវិញនៅទីនេះដើម្បីដោះស្រាយកំហុស ReferenceError ទាំងស្រុង
+        
+        // Tracking enrolled courses dynamically (IDs 1, 2, 3 enrolled by default)
+        let enrolledCourseIds = [1, 2, 3];
+
+        // Updated Courses Data list (22 subjects for a highly comprehensive library feel)
+        const mockCourses = [
+            { id: 1, title: 'បង្កើតគេហទំព័រពេញលេញ (Full-Stack Web)', category: 'tech', lessons: 12, hours: 24, price: 49.99, teacher: 'សិលា ដារ៉ា', img: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?auto=format&fit=crop&q=80&w=600' },
+            { id: 2, title: 'រចនាបទ UI/UX អាជីពជាមួយ Figma', category: 'design', lessons: 10, hours: 18, price: 39.99, teacher: 'ចិន្តា មុនី', img: 'https://images.unsplash.com/photo-1561070791-26c113006238?auto=format&fit=crop&q=80&w=600' },
+            { id: 3, title: 'យុទ្ធសាស្ត្រទីផ្សារឌីជីថលទំនើប', category: 'business', lessons: 8, hours: 15, price: 29.99, teacher: 'គីម ហេង', img: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=600' },
+            { id: 4, title: 'ការវិភាគទិន្នន័យជាមួយ Python & SQL', category: 'tech', lessons: 14, hours: 28, price: 59.99, teacher: 'សិលា ដារ៉ា', img: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=600' },
+            { id: 5, title: 'មូលដ្ឋានគ្រឹះគំនូរបែប 2D Graphic Design', category: 'design', lessons: 9, hours: 16, price: 19.99, teacher: 'ចិន្តា មុនី', img: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&q=80&w=600' },
+            { id: 6, title: 'ការចាប់ផ្តើមអាជីវកម្ម Startup ពីចំណុចសូន្យ', category: 'business', lessons: 11, hours: 20, price: 34.99, teacher: 'គីម ហេង', img: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=600' },
+            { id: 7, title: 'អភិវឌ្ឍន៍កម្មវិធីទូរស័ព្ទជាមួយ Flutter', category: 'tech', lessons: 15, hours: 30, price: 69.99, teacher: 'សិលា ដារ៉ា', img: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&q=80&w=600' },
+            { id: 8, title: 'មូលដ្ឋានគ្រឹះសន្តិសុខបច្ចេកវិទ្យា (Cybersecurity)', category: 'tech', lessons: 10, hours: 20, price: 45.00, teacher: 'សិលា ដារ៉ា', img: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=600' },
+            { id: 9, title: 'ការថតរូប និងកែច្នៃរូបភាពកម្រិតអាជីព', category: 'design', lessons: 12, hours: 18, price: 24.99, teacher: 'ចិន្តា មុនី', img: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=600' },
+            { id: 10, title: 'ការគ្រប់គ្រងហិរញ្ញវត្ថុ និងការវិនិយោគ', category: 'business', lessons: 8, hours: 12, price: 39.99, teacher: 'គីម ហេង', img: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&q=80&w=600' },
+            { id: 11, title: 'បញ្ញាសិប្បនិម្មិត និងម៉ាស៊ីនរៀន (AI & ML)', category: 'tech', lessons: 18, hours: 36, price: 79.99, teacher: 'សិលា ដារ៉ា', img: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?auto=format&fit=crop&q=80&w=600' },
+            { id: 12, title: 'យុទ្ធសាស្ត្រលក់ និងការចរចាពាណិជ្ជកម្ម', category: 'business', lessons: 10, hours: 16, price: 29.99, teacher: 'គីម ហេង', img: 'https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&q=80&w=600' },
+            { id: 13, title: 'គំនូរជីវចល 3D ជាមួយ Blender', category: 'design', lessons: 14, hours: 28, price: 49.99, teacher: 'ចិន្តា មុនី', img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=600' },
+            { id: 14, title: 'ការគ្រប់គ្រងគម្រោង (Project Management)', category: 'business', lessons: 9, hours: 18, price: 34.99, teacher: 'គីម ហេង', img: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=600' },
+            { id: 15, title: 'Cloud Computing ជាមួយ AWS', category: 'tech', lessons: 12, hours: 24, price: 54.99, teacher: 'សិលា ដារ៉ា', img: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=600' },
+            { id: 16, title: 'ការបង្កើតមាតិកាវីដេអូជាមួយ Premiere Pro', category: 'design', lessons: 11, hours: 22, price: 39.99, teacher: 'ចិន្តា មុនី', img: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&q=80&w=600' },
+            { id: 17, title: 'សរសេរកូដភាសា Java កម្រិតដំបូង', category: 'tech', lessons: 13, hours: 26, price: 44.99, teacher: 'សិលា ដារ៉ា', img: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&q=80&w=600' },
+            { id: 18, title: 'យុទ្ធសាស្ត្រ SEO និងការបង្កើនប្រសិទ្ធភាពស្វែងរក', category: 'business', lessons: 8, hours: 14, price: 19.99, teacher: 'គីម ហេង', img: 'https://images.unsplash.com/photo-1571844307880-751c6d86f3f3?auto=format&fit=crop&q=80&w=600' },
+            { id: 19, title: 'Motion Graphics ជាមួយ After Effects', category: 'design', lessons: 12, hours: 20, price: 45.00, teacher: 'ចិន្តា មុនី', img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=600' },
+            { id: 20, title: 'ប្រព័ន្ធគ្រប់គ្រងមូលដ្ឋានទិន្នន័យ (DBMS)', category: 'tech', lessons: 10, hours: 20, price: 39.99, teacher: 'សិលា ដារ៉ា', img: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?auto=format&fit=crop&q=80&w=600' },
+            { id: 21, title: 'យុទ្ធសាស្ត្រពាណិជ្ជកម្មអេឡិចត្រូនិក (E-Commerce)', category: 'business', lessons: 11, hours: 18, price: 34.99, teacher: 'គីម ហេង', img: 'https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&q=80&w=600' },
+            { id: 22, title: 'ការអភិវឌ្ឍហ្គេម 2D/3D ជាមួយ Unity', category: 'tech', lessons: 16, hours: 32, price: 59.99, teacher: 'សិលា ដារ៉ា', img: 'https://images.unsplash.com/photo-1553481187-be93c21490a9?auto=format&fit=crop&q=80&w=600' }
+        ];
+
+        // Specific, curated real lesson sources using super stable public educational .mp4 files (Google API Cloud Storage streams)
+        const mockLessons = {
+            1: [ // Full-Stack
+                { id: 101, title: 'មេរៀនទី១៖ មូលដ្ឋានគ្រឹះនៃគេហទំព័រ HTML5', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', docName: 'ស្លាយមេរៀនទី១ - HTML5 Basic.pdf', docUrl: 'https://www.w3.org/TR/html52/' },
+                { id: 102, title: 'មេរៀនទី២៖ ការរចនាតុបតែងជាមួយ CSS3', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', docName: 'កូដគំរូ និងស្លាយ CSS3 Styling.zip', docUrl: 'https://www.w3.org/Style/CSS/' },
+                { id: 103, title: 'មេរៀនទី៣៖ ការប្រើប្រាស់ Layout Flexbox & Grid', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4', docName: 'សន្លឹកកិច្ចការ Flexbox & Grid Cheat.pdf', docUrl: 'https://css-tricks.com/snippets/css/a-guide-to-flexbox/' }
+            ],
+            2: [ // UX/UI Figma
+                { id: 201, title: 'មេរៀនទី១៖ ការយល់ដឹងពី UX/UI Design Foundation', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4', docName: 'មេរៀនសង្ខេប UX/UI Design Basics.pdf', docUrl: 'https://www.nngroup.com/articles/definition-user-experience/' },
+                { id: 202, title: 'មេរៀនទី២៖ មូលដ្ឋានគ្រឹះឧបករណ៍ Figma', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4', docName: 'គំរូ Figma UI Kit Shortcuts.zip', docUrl: 'https://www.figma.com/' },
+                { id: 203, title: 'មេរៀនទី៣៖ ការបង្កើត Components & Styles', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4', docName: 'ឯកសារស្វ័យសិក្សា Figma Pro.pdf', docUrl: 'https://help.figma.com/' }
+            ],
+            3: [ // Digital Marketing
+                { id: 301, title: 'មេរៀនទី១៖ មូលដ្ឋានគ្រឹះទីផ្សារឌីជីថល', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4', docName: 'សេចក្តីសង្ខេប Digital Marketing Intro.pdf', docUrl: 'https://www.hubspot.com/' },
+                { id: 302, title: 'មេរៀនទី២៖ ការយល់ដឹងពី Social Media Marketing', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4', docName: 'កូនសៀវភៅ Social Strategy Planner.pdf', docUrl: 'https://buffer.com/' }
+            ],
+            4: [ // Python
+                { id: 401, title: 'មេរៀនទី១៖ មូលដ្ឋានគ្រឹះនៃ Python Programming', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4', docName: 'ស្លាយមេរៀន Python Syntax 101.pdf', docUrl: 'https://www.python.org/' },
+                { id: 402, title: 'មេរៀនទី២៖ រចនាសម្ព័ន្ធទិន្នន័យ (Lists, Tuples, Dicts)', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', docName: 'លំហាត់ Python Data Structures.zip', docUrl: 'https://docs.python.org/3/' }
+            ]
+        };
+
+        // Database Mock data
+        const mockDatabase = {
+            users: [
+                { id: 1, name: 'កែវ ពិសិដ្ឋ', email: 'piseth@gmail.com', role: 'student', reg_date: '2026-05-01' },
+                { id: 2, name: 'សិលា ដារ៉ា', email: 'sela@gmail.com', role: 'teacher', reg_date: '2026-01-10' },
+                { id: 3, name: 'រស្មី ទេវី', email: 'tevy@gmail.com', role: 'admin', reg_date: '2025-12-01' }
+            ],
+            courses: [
+                { course_id: 1, title: 'Full-Stack Web Dev', category: 'tech', price: 49.99, lessons_count: 12 },
+                { course_id: 2, title: 'UI/UX Design Figma', category: 'design', price: 39.99, lessons_count: 10 }
+            ],
+            lessons: [
+                { lesson_id: 101, course_id: 1, title: 'Introduction to HTML5', video_url: 'html5.mp4', duration_min: 25 }
+            ],
+            assignments: [
+                { assign_id: 201, course_id: 1, title: 'Build Landing Page', due_date: '2026-06-20', total_marks: 100 }
+            ],
+            quizzes: [
+                { quiz_id: 301, course_id: 1, question: 'What does CSS stand for?', correct: 'B' }
+            ],
+            results: [
+                { result_id: 401, student_id: 1, quiz_id: 301, score_achieved: '100%', test_date: '2026-06-11' }
+            ],
+            certificates: [
+                { cert_id: 501, student_id: 1, course_id: 1, issue_date: '2026-06-12', cert_hash: 'CERT893049283' }
+            ],
+            notifications: [
+                { notif_id: 601, user_id: 1, message: '🎉 វគ្គសិក្សា UX/UI Design ត្រូវបានបន្ថែមមេរៀនថ្មី!', read_status: 0 }
+            ]
+        };
+
+        let quizData = [
+            { question: "សំណួរទី ១៖ តើ CSS ប្រើប្រាស់សម្រាប់តួនាទីអ្វី?", options: ["តុបតែងគេហទំព័រ", "សរសេរតក្កវិជ្ជាកូដ", "រក្សាទុកទិន្នន័យ"], correct: 0 },
+            { question: "សំណួរទី ២៖ តើ HTML មកពីពាក្យពេញអ្វី?", options: ["Hyper Text Markup Language", "Home Tool Markup Language", "Hyperlink Text Management"], correct: 0 },
+            { question: "សំណួរទី ៣៖ តើមួយណាជា Framework របស់ JavaScript?", options: ["Laravel", "Django", "React.js"], correct: 2 }
+        ];
+        let currentQuizIndex = 0;
+        let quizAnswers = [];
+
+        window.onload = function() {
+            renderDBTable();
+            loadQuizQuestion();
+            renderFeaturedCourses();
+            renderLibraryCourses();
+            renderMyCoursesList();
+        }
+
+        // Dedicated Page Routing
+        function navigateTo(pageId) {
+            // Hide all pages
+            const pages = document.querySelectorAll('.page-section');
+            pages.forEach(page => page.classList.add('hidden'));
+
+            // Show current target page
+            const targetPage = document.getElementById(`page-${pageId}`);
+            if (targetPage) {
+                targetPage.classList.remove('hidden');
+                if (['login', 'register', 'forgot'].includes(pageId)) {
+                    targetPage.classList.add('flex');
+                } else {
+                    targetPage.classList.remove('flex');
+                }
+            }
+
+            // Update Navigation Menu Active Class
+            const navIds = ['home', 'courses', 'about', 'contact'];
+            navIds.forEach(id => {
+                const btn = document.getElementById(`nav-${id}`);
+                if (btn) {
+                    if (id === pageId) {
+                        btn.className = "text-primary hover:text-primary transition font-bold border-b-2 border-primary pb-1";
+                    } else {
+                        btn.className = "text-slate-600 dark:text-slate-300 hover:text-primary transition font-semibold pb-1 border-b-2 border-transparent";
+                    }
+                }
+            });
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Toggle FAQ answers (Accordion)
+        function toggleFaq(id) {
+            const content = document.getElementById(`faq-content-${id}`);
+            const icon = document.getElementById(`faq-icon-${id}`);
+            content.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
+        }
+
+        // Render Home page 3 Featured Courses
+        function renderFeaturedCourses() {
+            const grid = document.getElementById('featured-courses-grid');
+            if(!grid) return;
+            grid.innerHTML = '';
+            mockCourses.slice(0, 3).forEach(course => {
+                const badgeColor = course.category === 'tech' ? 'bg-primary' : (course.category === 'design' ? 'bg-secondary' : 'bg-green-500');
+                const catName = course.category === 'tech' ? 'បច្ចេកវិទ្យា' : (course.category === 'design' ? 'រចនា' : 'ធុរកិច្ច');
+                grid.innerHTML += `
+                    <div class="course-card bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-slate-700 overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                        <div class="h-48 overflow-hidden relative">
+                            <img src="${course.img}" alt="${course.title}" class="w-full h-full object-cover">
+                            <span class="absolute top-4 right-4 px-3 py-1 ${badgeColor} text-white text-xs font-bold rounded-lg">${catName}</span>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div class="flex justify-between items-center text-sm text-gray-500">
+                                <span><i class="fa-solid fa-book-open mr-2 text-primary"></i>${course.lessons} មេរៀន</span>
+                                <span><i class="fa-solid fa-clock mr-2 text-primary"></i>${course.hours} ម៉ោង</span>
+                            </div>
+                            <h3 class="text-lg font-bold hover:text-primary transition cursor-pointer" onclick="navigateTo('courses')">${course.title}</h3>
+                            <div class="border-t border-gray-100 dark:border-slate-700 pt-4 flex justify-between items-center">
+                                <span class="text-sm font-semibold">${course.teacher}</span>
+                                <span class="text-base font-black text-secondary">$${course.price}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Render Dedicated Courses Page Grid
+        function renderLibraryCourses(filteredList = mockCourses) {
+            const grid = document.getElementById('library-courses-grid');
+            if(!grid) return;
+            grid.innerHTML = '';
+            if (filteredList.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400">រកមិនឃើញវគ្គសិក្សាដែលអ្នកចង់ស្វែងរកឡើយ!</div>`;
+                return;
+            }
+            filteredList.forEach(course => {
+                const badgeColor = course.category === 'tech' ? 'bg-primary' : (course.category === 'design' ? 'bg-secondary' : 'bg-green-500');
+                const catName = course.category === 'tech' ? 'បច្ចេកវិទ្យា' : (course.category === 'design' ? 'រចនា' : 'ធុរកិច្ច');
+                grid.innerHTML += `
+                    <div class="library-card bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-slate-700 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300" data-category="${course.category}">
+                        <div class="h-48 overflow-hidden relative">
+                            <img src="${course.img}" alt="${course.title}" class="w-full h-full object-cover">
+                            <span class="absolute top-4 right-4 px-3 py-1 ${badgeColor} text-white text-xs font-bold rounded-lg">${catName}</span>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div class="flex justify-between items-center text-sm text-gray-500">
+                                <span><i class="fa-solid fa-book-open mr-2 text-primary"></i>${course.lessons} មេរៀន</span>
+                                <span><i class="fa-solid fa-clock mr-2 text-primary"></i>${course.hours} ម៉ោង</span>
+                            </div>
+                            <h3 class="text-lg font-bold hover:text-primary transition cursor-pointer">${course.title}</h3>
+                            <p class="text-xs text-gray-400 line-clamp-2">រៀបចំឡើងយ៉ាងសម្រិតសម្រាំងសម្រាប់សិស្សដែលចង់ស្វែងយល់លម្អិតពីទ្រឹស្តី និងការអនុវត្តផ្ទាល់។</p>
+                            <div class="border-t border-gray-100 dark:border-slate-700 pt-4 flex justify-between items-center">
+                                <span class="text-sm font-semibold">${course.teacher}</span>
+                                <span class="text-base font-black text-secondary">$${course.price}</span>
+                            </div>
+                            <button onclick="enrollMock(${course.id})" class="w-full py-2.5 bg-gradient-to-r from-primary to-secondary text-white font-bold text-xs rounded-xl mt-2 transition">ចុះឈ្មោះរៀនឥឡូវនេះ</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Filters in Dedicated Courses Page
+        function filterCategoryLibrary(cat) {
+            const buttons = document.querySelectorAll('.cat-lib-btn');
+            buttons.forEach(btn => {
+                btn.className = "cat-lib-btn px-4 py-2 text-sm rounded-xl bg-gray-50 dark:bg-slate-900 hover:bg-gray-100 dark:hover:bg-slate-700 font-semibold transition text-slate-800 dark:text-slate-300";
+            });
+            event.target.className = "cat-lib-btn px-4 py-2 text-sm rounded-xl bg-primary text-white font-bold transition";
+
+            if (cat === 'all') {
+                renderLibraryCourses(mockCourses);
+            } else {
+                const filtered = mockCourses.filter(c => c.category === cat);
+                renderLibraryCourses(filtered);
+            }
+        }
+
+        function filterCoursesLibrary() {
+            const query = document.getElementById('course-page-search').value.toLowerCase();
+            const filtered = mockCourses.filter(course => course.title.toLowerCase().includes(query));
+            renderLibraryCourses(filtered);
+        }
+
+        // Dynamic enrollment logic
+        function enrollMock(courseId) {
+            if (!currentUser) {
+                showNotification("🔑 សូមចូលគណនីរបស់អ្នកជាសិស្សដើម្បីចុះឈ្មោះសិក្សា!");
+                selectLoginRole('student');
+                navigateTo('login');
+                return;
+            }
+            if (currentUser.role !== 'student') {
+                showNotification("❌ គណនីនេះមិនមែនជាគណនីសិស្សទេ! សូមចូលជាសិស្សដើម្បីរៀន។");
+                return;
+            }
+            if (enrolledCourseIds.includes(courseId)) {
+                showNotification("📝 អ្នកបានចុះឈ្មោះក្នុងវគ្គសិក្សានេះរួចរាល់ហើយ!");
+            } else {
+                enrolledCourseIds.push(courseId);
+                showNotification("🎉 ចុះឈ្មោះដោយជោគជ័យ! មេរៀនត្រូវបានបន្ថែមទៅក្នុង Dashboard របស់អ្នក។");
+                renderMyCoursesList();
+            }
+            navigateTo('student-dashboard');
+            switchStudentTab('courses');
+        }
+
+        // Contact Form action
+        function handleContactSubmit() {
+            const name = document.getElementById('contact-name').value;
+            const email = document.getElementById('contact-email').value;
+            const msg = document.getElementById('contact-message').value;
+
+            if (!name || !email || !msg) {
+                showNotification("❌ សូមបំពេញព័ត៌មានឱ្យបានគ្រប់គ្រាន់!");
+                return;
+            }
+
+            showNotification(`📨 អរគុណ ${name}! ក្រុមការងារយើងនឹងទាក់ទងត្រឡប់ទៅវិញឆាប់ៗ។`);
+            document.getElementById('contact-name').value = '';
+            document.getElementById('contact-email').value = '';
+            document.getElementById('contact-message').value = '';
+        }
+
+        // Dark mode control
+        function toggleDarkMode() {
+            darkMode = !darkMode;
+            const darkIcon = document.getElementById('dark-icon');
+            if (darkMode) {
+                document.documentElement.classList.add('dark');
+                darkIcon.className = 'fa-solid fa-sun text-lg text-yellow-500';
+            } else {
+                document.documentElement.classList.remove('dark');
+                darkIcon.className = 'fa-solid fa-moon text-lg';
+            }
+        }
+
+        // Notifications control
+        function toggleNotifications() {
+            document.getElementById('notif-dropdown').classList.toggle('hidden');
+        }
+
+        function clearNotifs() {
+            document.getElementById('notif-list').innerHTML = '<p class="p-4 text-center text-xs text-gray-400">គ្មានការជូនដំណឹងថ្មីទេ</p>';
+            document.getElementById('notif-badge').classList.add('hidden');
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        // Authentic Login Controls
+        function selectLoginRole(role) {
+            activeRole = role;
+            const roles = ['student', 'teacher', 'admin'];
+            roles.forEach(r => {
+                const btn = document.getElementById(`role-btn-${r}`);
+                btn.className = "py-2 text-xs font-bold rounded-lg transition-all text-gray-500 hover:bg-gray-200 dark:hover:bg-slate-700";
+            });
+            document.getElementById(`role-btn-${role}`).className = "py-2 text-xs font-bold rounded-lg transition-all bg-primary text-white shadow";
+
+            const emailField = document.getElementById('login-email');
+            emailField.value = `${role}@edulearn.com`;
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            currentUser = { name: email.split('@')[0].toUpperCase(), role: activeRole };
+
+            document.getElementById('nav-auth-section').innerHTML = `
+                <div class="flex items-center gap-3">
+                    <button onclick="logout()" class="px-4 py-2 bg-red-100 text-red-600 dark:bg-red-950/50 dark:text-red-400 font-bold text-xs rounded-xl hover:bg-red-200 transition"><i class="fa-solid fa-right-from-bracket mr-2"></i>ចាកចេញ</button>
+                    <div onclick="navigateTo('${activeRole}-dashboard')" class="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-secondary text-white font-bold flex items-center justify-center cursor-pointer shadow-md text-sm">${currentUser.name[0]}</div>
+                </div>
+            `;
+
+            if (activeRole === 'student') {
+                document.getElementById('student-name-display').innerText = currentUser.name;
+                document.getElementById('cert-student-name').innerText = currentUser.name;
+                renderMyCoursesList(); // Re-render course classroom when student logs in
+            }
+
+            navigateTo(`${activeRole}-dashboard`);
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            showNotification(`🎉 ចុះឈ្មោះគណនី ${name} ដោយជោគជ័យ!`);
+            navigateTo('login');
+        }
+
+        function handleForgot() {
+            const email = document.getElementById('forgot-email').value;
+            if (email) {
+                showNotification(`📧 លីងកំណត់លេខសម្ងាត់ថ្មីបានផ្ញើទៅ ${email}`);
+                navigateTo('login');
+            } else {
+                showNotification("❌ សូមបញ្ចូលអ៊ីមែល!");
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('nav-auth-section').innerHTML = `
+                <button onclick="navigateTo('login')" class="px-5 py-2 rounded-xl bg-gradient-to-r from-primary to-secondary text-white font-semibold hover:shadow-lg transition text-sm sm:text-base">
+                    <i class="fa-solid fa-right-to-bracket mr-2"></i>ចូលប្រើប្រាស់
+                </button>
+            `;
+            navigateTo('home');
+        }
+
+        function switchStudentTab(tabId) {
+            const contents = document.querySelectorAll('.student-content');
+            contents.forEach(content => content.classList.add('hidden'));
+            document.getElementById(`stu-content-${tabId}`).classList.remove('hidden');
+
+            const buttons = document.querySelectorAll('.student-tab-btn');
+            buttons.forEach(btn => {
+                btn.className = "student-tab-btn w-full text-left px-5 py-3 rounded-xl bg-white dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 font-bold flex items-center gap-3 transition text-slate-700 dark:text-slate-300";
+            });
+            document.getElementById(`stu-tab-${tabId}`).className = "student-tab-btn w-full text-left px-5 py-3 rounded-xl bg-primary text-white font-bold flex items-center gap-3 transition shadow";
+        }
+
+        // ==========================================
+        // DYNAMIC CLASSROOM & VIDEO/DOC PLAYBACK
+        // ==========================================
+        function renderMyCoursesList() {
+            const grid = document.getElementById('my-enrolled-courses-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            
+            // Map course objects that match enrolled IDs
+            const enrolledCourses = mockCourses.filter(c => enrolledCourseIds.includes(c.id));
+            
+            if (enrolledCourses.length === 0) {
+                grid.innerHTML = `<p class="col-span-full text-center text-sm text-gray-400 py-6">អ្នកមិនទាន់បានចុះឈ្មោះសិក្សាវគ្គណាឡើយ។</p>`;
+                return;
+            }
+            
+            enrolledCourses.forEach(course => {
+                grid.innerHTML += `
+                    <div class="p-5 bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:shadow transition">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 rounded-2xl overflow-hidden bg-slate-100 shrink-0">
+                                <img src="${course.img}" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-sm sm:text-base text-slate-800 dark:text-white">${course.title}</h4>
+                                <p class="text-xs text-gray-400 mt-1">គ្រូបង្គោល៖ ${course.teacher} | វឌ្ឍនភាព៖ ៥០%</p>
+                            </div>
+                        </div>
+                        <button onclick="enterClassroom(${course.id})" class="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-primary to-secondary text-white font-bold text-xs rounded-xl hover:shadow-md transition">
+                            <i class="fa-solid fa-play-circle mr-1"></i> ចូលរៀន
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        // Generates default realistic Khmer lessons for courses that don't have specified mockLessons data
+        function getLessonsForCourse(course) {
+            if (mockLessons[course.id]) {
+                return mockLessons[course.id];
+            }
+            const sampleVideos = [
+                'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+                'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+                'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4'
+            ];
+            // Dynamic generation logic to ensure all 22 subjects have beautiful educational content seamlessly
+            return [
+                { 
+                    id: course.id * 100 + 1, 
+                    title: `មេរៀនទី១៖ ការណែនាំអំពី ${course.title}`, 
+                    videoUrl: sampleVideos[0], 
+                    docName: `ឯកសារណែនាំ_${course.title.replace(/\s+/g, '_')}_ភាគ១.pdf`, 
+                    docUrl: 'https://arxiv.org/' 
+                },
+                { 
+                    id: course.id * 100 + 2, 
+                    title: `មេរៀនទី២៖ គន្លឹះសំខាន់ៗ និងការអនុវត្តជាក់ស្តែង`, 
+                    videoUrl: sampleVideos[1], 
+                    docName: `កូដគំរូ_លំហាត់_${course.title.replace(/\s+/g, '_')}.zip`, 
+                    docUrl: 'https://github.com/' 
+                },
+                { 
+                    id: course.id * 100 + 3, 
+                    title: `មេរៀនទី៣៖ គម្រោងអនុវត្តបញ្ចប់វគ្គសិក្សា`, 
+                    videoUrl: sampleVideos[2], 
+                    docName: `គម្រោងអនុវត្ត_${course.title.replace(/\s+/g, '_')}_ផ្តាច់ព្រ័ត្រ.pdf`, 
+                    docUrl: 'https://google.com/' 
+                }
+            ];
+        }
+
+        function enterClassroom(courseId) {
+            const course = mockCourses.find(c => c.id === courseId);
+            if (!course) return;
+
+            // Hide lists, show classroom player layout
+            document.getElementById('classroom-courses-list').classList.add('hidden');
+            document.getElementById('classroom-active-view').classList.remove('hidden');
+
+            const lessonsList = getLessonsForCourse(course);
+            document.getElementById('classroom-lessons-count').innerText = `${lessonsList.length} មេរៀន`;
+
+            // Populate the interactive sidebar playlist
+            const playlistContainer = document.getElementById('classroom-playlist');
+            playlistContainer.innerHTML = '';
+
+            lessonsList.forEach((lesson, index) => {
+                playlistContainer.innerHTML += `
+                    <button onclick="playLesson(${courseId}, ${lesson.id})" id="playlist-btn-${lesson.id}" class="playlist-item-btn w-full text-left p-3 rounded-xl border border-gray-100 dark:border-slate-700/50 hover:bg-primary/5 dark:hover:bg-slate-700 transition flex items-center justify-between gap-3 text-slate-700 dark:text-slate-300">
+                        <div class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-lg bg-gray-100 dark:bg-slate-900 text-xs font-bold flex items-center justify-center text-gray-500 shrink-0">${index + 1}</span>
+                            <span class="text-xs font-semibold truncate max-w-[150px] sm:max-w-xs">${lesson.title}</span>
+                        </div>
+                        <i class="fa-regular fa-circle-play text-gray-400 shrink-0 text-sm"></i>
+                    </button>
+                `;
+            });
+
+            // Play the first lesson by default on loading classroom
+            if (lessonsList.length > 0) {
+                playLesson(courseId, lessonsList[0].id);
+            }
+        }
+
+        function playLesson(courseId, lessonId) {
+            const course = mockCourses.find(c => c.id === courseId);
+            const lessonsList = getLessonsForCourse(course);
+            const lesson = lessonsList.find(l => l.id === lessonId);
+            if (!lesson) return;
+
+            // Update Video Player source and titles
+            const player = document.getElementById('classroom-player');
+            if (player) {
+                player.src = lesson.videoUrl;
+                player.load(); // ផ្ទុកវីដេអូថ្មីចូល Player
+                // player.play(); // បើចង់ឱ្យ Play ស្វ័យប្រវត្តិ
+            }
+            document.getElementById('classroom-lesson-title').innerText = lesson.title;
+            document.getElementById('classroom-doc-name').innerText = lesson.docName;
+            document.getElementById('classroom-doc-link').href = lesson.docUrl;
+
+            // Visual styling feedback for active playlist item
+            const buttons = document.querySelectorAll('.playlist-item-btn');
+            buttons.forEach(btn => {
+                btn.className = "playlist-item-btn w-full text-left p-3 rounded-xl border border-gray-100 dark:border-slate-700/50 hover:bg-primary/5 dark:hover:bg-slate-700 transition flex items-center justify-between gap-3 text-slate-700 dark:text-slate-300";
+                const numBox = btn.querySelector('span');
+                if (numBox) numBox.className = "w-6 h-6 rounded-lg bg-gray-100 dark:bg-slate-900 text-xs font-bold flex items-center justify-center text-gray-500 shrink-0";
+                const playIcon = btn.querySelector('i');
+                if (playIcon) playIcon.className = "fa-regular fa-circle-play text-gray-400 shrink-0 text-sm";
+            });
+
+            const activeBtn = document.getElementById(`playlist-btn-${lessonId}`);
+            if (activeBtn) {
+                activeBtn.className = "playlist-item-btn w-full text-left p-3 rounded-xl border-2 border-primary bg-primary/5 font-bold transition flex items-center justify-between gap-3 text-primary";
+                const numBox = activeBtn.querySelector('span');
+                if (numBox) numBox.className = "w-6 h-6 rounded-lg bg-primary text-white text-xs font-bold flex items-center justify-center shrink-0";
+                const playIcon = activeBtn.querySelector('i');
+                if (playIcon) playIcon.className = "fa-solid fa-volume-high text-primary shrink-0 text-sm animate-pulse";
+            }
+        }
+
+        function exitClassroom() {
+            // Stop Video Playback to prevent bg audio running
+            const player = document.getElementById('classroom-player');
+            if (player) {
+                player.pause();
+                player.src = "";
+                player.load();
+            }
+            document.getElementById('classroom-active-view').classList.add('hidden');
+            document.getElementById('classroom-courses-list').classList.remove('hidden');
+        }
+
+        function downloadDoc() {
+            showNotification("📥 កំពុងទាញយកឯកសារមេរៀនជា PDF...");
+        }
+
+        // Quiz Logic
+        function loadQuizQuestion() {
+            const questionContainer = document.getElementById('quiz-options');
+            const questionText = document.getElementById('quiz-question');
+            if(!questionText || !questionContainer) return;
+            const data = quizData[currentQuizIndex];
+
+            questionText.innerText = `${data.question}`;
+            questionContainer.innerHTML = '';
+
+            data.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left px-5 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 hover:bg-primary/10 transition font-semibold text-sm text-slate-800 dark:text-slate-200";
+                btn.innerText = `${idx + 1}. ${opt}`;
+                btn.onclick = () => selectQuizAnswer(idx, btn);
+                questionContainer.appendChild(btn);
+            });
+        }
+
+        function selectQuizAnswer(idx, btn) {
+            const btns = document.getElementById('quiz-options').children;
+            for (let b of btns) {
+                b.className = "w-full text-left px-5 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 hover:bg-primary/10 transition font-semibold text-sm text-slate-800 dark:text-slate-200";
+            }
+            btn.className = "w-full text-left px-5 py-3 rounded-xl border-2 border-primary bg-primary/5 font-bold transition text-sm text-slate-800 dark:text-slate-200";
+            quizAnswers[currentQuizIndex] = idx;
+        }
+
+        function submitQuiz() {
+            if (quizAnswers[currentQuizIndex] === undefined) {
+                showNotification("❌ សូមជ្រើសរើសចម្លើយ!");
+                return;
+            }
+
+            if (currentQuizIndex < quizData.length - 1) {
+                currentQuizIndex++;
+                loadQuizQuestion();
+            } else {
+                let score = 0;
+                quizAnswers.forEach((ans, idx) => {
+                    if (ans === quizData[idx].correct) score++;
+                });
+
+                document.getElementById('quiz-question-container').classList.add('hidden');
+                document.getElementById('quiz-result').classList.remove('hidden');
+                document.getElementById('quiz-score').innerText = `${score}/${quizData.length}`;
+            }
+        }
+
+        function resetQuiz() {
+            currentQuizIndex = 0;
+            quizAnswers = [];
+            document.getElementById('quiz-question-container').classList.remove('hidden');
+            document.getElementById('quiz-result').classList.add('hidden');
+            loadQuizQuestion();
+        }
+
+        function postToForum() {
+            const text = document.getElementById('forum-input').value;
+            if (!text) return;
+            showNotification("💬 បង្ហោះសំណួរជោគជ័យ! រង់ចាំការឆ្លើយតបពីលោកគ្រូ!");
+            document.getElementById('forum-input').value = '';
+        }
+
+        function handleCreateCourse(event) {
+            event.preventDefault();
+            const title = document.getElementById('new-course-title').value;
+            const cat = document.getElementById('new-course-cat').value;
+            const price = document.getElementById('new-course-price').value;
+
+            mockCourses.push({
+                id: mockCourses.length + 1,
+                title: title,
+                category: cat,
+                lessons: 10,
+                hours: 15,
+                price: parseFloat(price),
+                teacher: currentUser ? currentUser.name : 'គ្រូសាកល្បង',
+                img: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=600'
+            });
+
+            showNotification("🎉 វគ្គសិក្សាថ្មីត្រូវបានដាក់ផ្សាយដោយជោគជ័យ!");
+            hideModal('createCourse');
+            renderFeaturedCourses();
+            renderLibraryCourses();
+        }
+
+        function gradeAssignment(studentName) {
+            showNotification(`📝 កំពុងកែសម្រួលកិច្ចការរបស់សិស្ស ${studentName}...`);
+        }
+
+        // Modal triggers
+        function showModal(modalId) {
+            document.getElementById(`modal-${modalId}`).classList.remove('hidden');
+        }
+
+        function hideModal(modalId) {
+            document.getElementById(`modal-${modalId}`).classList.add('hidden');
+        }
+
+        function printCertificate() {
+            window.print();
+        }
+
+        function renderDBTable() {
+            const tableKey = document.getElementById('db-table-select').value;
+            const data = mockDatabase[tableKey];
+            const tableElement = document.getElementById('db-visual-table');
+
+            if (!data || data.length === 0 || !tableElement) return;
+
+            const headers = Object.keys(data[0]);
+
+            let html = `<thead class="bg-red-500 text-white font-bold"><tr>`;
+            headers.forEach(h => {
+                html += `<th class="p-4 border border-slate-700">${h.toUpperCase()}</th>`;
+            });
+            html += `</tr></thead><tbody>`;
+
+            data.forEach(row => {
+                html += `<tr class="border-b border-gray-200 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-700 transition">`;
+                headers.forEach(h => {
+                    html += `<td class="p-4 border border-gray-200 dark:border-slate-700 font-semibold text-slate-800 dark:text-slate-100">${row[h]}</td>`;
+                });
+                html += `</tr>`;
+            });
+
+            html += `</tbody>`;
+            tableElement.innerHTML = html;
+        }
+
+        function showNotification(message) {
+            const toast = document.createElement('div');
+            toast.className = "fixed bottom-5 right-5 z-50 bg-slate-950 text-white dark:bg-white dark:text-slate-900 px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-800 animate-bounce max-w-sm";
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-green-500 text-lg"></i> <span class="font-bold text-xs sm:text-sm">${message}</span>`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+    </script>
+</body>
+</html>
